@@ -2,9 +2,9 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 
-var CONTACTS_COLLECTION = "contacts";
+var CONTACTS_COLLECTION = "vin";
 var app = express();
-
+app.set('port', (process.env.PORT || 5000));
 
 // Create a database variable outside of the database connection callback to reuse the connection pool in your app.
 var db;
@@ -19,12 +19,10 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
   // Save database object from the callback for reuse.
   db = database;
   console.log("Database connection ready");
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
 
-  // Initialize the app.
-  var server = app.listen(process.env.PORT || 5000, function () {
-    var port = server.address().port;
-    console.log("App now running on port", port);
-  });
 });
 
 app.use(bodyParser.json());
@@ -46,7 +44,13 @@ function handleError(res, reason, message, code) {
  */
 
 app.get("/api/viner", function(req, res) {
-
+  db.collection(CONTACTS_COLLECTION).find({}).toArray(function(err, docs) {
+    if (err) {
+      handleError(res, err.message, "Failed to get wines.");
+    } else {
+      res.status(200).json(docs);
+    }
+  });
 
 });
 
@@ -104,8 +108,4 @@ app.put("/api/viner/:id", function(req, res) {
 });
 
 app.delete("/api/viner/:id", function(req, res) {
-});
-
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
 });
