@@ -2,6 +2,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 
+var ObjectID = mongodb.ObjectID;
 var CONTACTS_COLLECTION = "vin";
 var app = express();
 app.set('port', (process.env.PORT || 5000));
@@ -19,6 +20,8 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
   // Save database object from the callback for reuse.
   db = database;
   console.log("Database connection ready");
+  var index = db.collection(CONTACTS_COLLECTION).find().sort( { _id : -1 } ).limit(1);
+  console.log("Next ID: " + index._id);
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
@@ -55,6 +58,19 @@ app.get("/api/viner", function(req, res) {
 });
 
 app.post("/api/viner", function(req, res) {
+  var newWine = req.body;
+
+  if (!req.body.namn) {
+    handleError(res, "Invalid user input", "Must provide a name.", 400);
+  }
+  
+  db.collection(CONTACTS_COLLECTION).insertOne(newWine, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to create new wine.");
+    } else {
+      res.status(201).json(doc.ops[0]);
+    }
+  });
 });
 
 /*  "/api/viner/:id"
@@ -64,48 +80,36 @@ app.post("/api/viner", function(req, res) {
  */
 
 app.get("/api/viner/:id", function(req, res) {
-
-  if (req.params.id != 123) {
-      handleError(res, "error reason", "Failed to get wine");
+  db.collection(CONTACTS_COLLECTION).findOne({ _id: parseInt(req.params.id) }, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to get wine");
     } else {
-      var response = {
-        id: 123,
-        namn: "Domaine de l'Echevin Côtes du Rhône Villages Saint-Maurice-sur-Eygues Guillaume de Rouville",
-        argang: 2014,
-        typ: "Rött",
-        land: "Frankrike",
-        region: "Rhône",
-        subRegion: "Southern Rhône",
-        appellation: "Côtes du Rhône Villages Saint-Maurice-sur-Eygues",
-        druva: "Red Rhone Blend",
-        pris: 170,
-        markning: "Eko, 2400 fl",
-        slapp: "Exlusiva Nyheter 3/2",
-        inlagd: "2017-02-12",
-        bestallt: "2017-02-03",
-        aov: {
-          betyg: "Fynd",
-          kvalitet: "3,5",
-          lagring: "Kan lagras",
-          smaktyp: "Strama fruktiga röda",
-          bedomning: "Kryddig och god doft med generös, lite örtig ursprungskaraktär. Mycket rik, flödig, intagande smak i tillgänglig, ändå högst seriös stil.",
-        },
-        systembolaget: {
-          nr: 95549,
-          fyllighet: 9,
-          stravhet: 8,
-          fruktsyra: 9,
-          smaktyp: "Kryddigt & mustigt",
-          smak: "Kryddig, nyanserad smak med fatkaraktär, inslag av mörka bär, kaffe, hallon, lagerblad, kryddpeppar och choklad. Serveras vid 16-18°C till rätter av lamm- eller nötkött.",
-          doft: "Kryddig, nyanserad doft med fatkaraktär, inslag av mörka bär, kaffe, lagerblad, kryddpeppar och tobak"
-        }
-      }
-      res.status(200).json(response);
+      res.status(200).json(doc);
     }
+  });
+
 });
 
 app.put("/api/viner/:id", function(req, res) {
+  var updateDoc = req.body;
+  delete updateDoc._id;
+
+  db.collection(CONTACTS_COLLECTION).updateOne({_id: parseInt(req.params.id)}, updateDoc, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to update contact");
+    } else {
+      updateDoc._id = req.params.id;
+      res.status(200).json(updateDoc);
+    }
+  });
 });
 
 app.delete("/api/viner/:id", function(req, res) {
+  db.collection(CONTACTS_COLLECTION).deleteOne({_id: parseInt(req.params.id)}, function(err, result) {
+    if (err) {
+      handleError(res, err.message, "Failed to delete contact");
+    } else {
+      res.status(200).json(req.params.id);
+    }
+  });
 });
