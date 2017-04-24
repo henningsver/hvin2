@@ -2,6 +2,8 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 
+const util = require('util')
+
 var CONTACTS_COLLECTION = "vin";
 var app = express();
 app.set('port', (process.env.PORT || 5000));
@@ -95,7 +97,7 @@ app.put("/api/viner/:id", function(req, res) {
 
   db.collection(CONTACTS_COLLECTION).updateOne({_id: parseInt(req.params.id)}, updateDoc, function(err, doc) {
     if (err) {
-      handleError(res, err.message, "Failed to update contact");
+      handleError(res, err.message, "Failed to update wine");
     } else {
       updateDoc._id = req.params.id;
       res.status(200).json(updateDoc);
@@ -106,9 +108,50 @@ app.put("/api/viner/:id", function(req, res) {
 app.delete("/api/viner/:id", function(req, res) {
   db.collection(CONTACTS_COLLECTION).deleteOne({_id: parseInt(req.params.id)}, function(err, result) {
     if (err) {
-      handleError(res, err.message, "Failed to delete contact");
+      handleError(res, err.message, "Failed to delete wine");
     } else {
       res.status(200).json(req.params.id);
     }
   });
 });
+
+//DB API
+app.get('/api/db/collections',function(req,res) {
+  db.listCollections().toArray(function(err, collInfos) {
+    res.json(collInfos);
+  });
+});
+app.get('/api/db/collections/:name',function(req,res){
+  db.collection(req.params.name).find({}).limit(20).toArray(function(err, docs) {
+    if (err) {
+      handleError(res, err.message, "Failed to get collection");
+    } else {
+      res.status(200).json(docs);
+    }
+  });
+});
+
+app.get('/api/db/getCounter/:id',function(req,res) {
+  db.collection("counters").find({_id: req.params.id}).toArray(function(err, docs) {
+    if (err) {
+      handleError(res, err.message, "Failed to get collection");
+    } else {
+      res.status(200).json(docs);
+    }
+  });
+});
+
+app.get('/api/db/updateCounter/:id',function(req,res) {
+  db.collection("counters").findAndModify(
+    { _id: req.params.id },
+    [],
+    { $inc: { seq: 1 } },
+    {new: true},
+      function(err, doc) {
+        if (err) {
+          handleError(res, err.message, "Failed to get collection");
+        } else {
+          res.status(200).json(doc);
+        }
+      });
+    });
