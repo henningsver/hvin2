@@ -4,7 +4,6 @@ var mongodb = require("mongodb");
 
 const util = require('util')
 
-var CONTACTS_COLLECTION = "vin";
 var app = express();
 app.set('port', (process.env.PORT || 5000));
 
@@ -55,12 +54,14 @@ function handleError(res, reason, message, code) {
   res.status(code || 500).json({"error": message});
 }
 
+var viner3 = require('./routes/viner3.js');
+app.use('/api/viner3', viner3);
+
 var viner = require('./routes/viner.js');
 app.use('/api/viner', viner);
 
-var viner2 = require('./routes/viner2.js');
-app.use('/api/viner2', viner2);
-
+var counters = require('./routes/counters.js');
+app.use('/api/counters', counters);
 
 
 //DB API
@@ -82,32 +83,3 @@ app.route('/api/db/collections/:name')
     }
   });
 });
-
-app.route('/api/db/getCounter/:id')
-.get(function(req, res) {
-//app.get('/api/db/getCounter/:id',function(req,res) {
-  db.collection("counters").find({_id: req.params.id}).toArray(function(err, docs) {
-    if (err) {
-      handleError(res, err.message, "Failed to get collection");
-    } else {
-      res.status(200).json(docs);
-    }
-  });
-});
-
-app.route('/api/db/updateCounter/:id')
-.get(function(req, res) {
-//app.get('/api/db/updateCounter/:id',function(req,res) {
-  db.collection("counters").findAndModify(
-    { _id: req.params.id },
-    [],
-    { $inc: { seq: 1 } },
-    {new: true},
-      function(err, doc) {
-        if (err) {
-          handleError(res, err.message, "Failed to get collection");
-        } else {
-          res.status(200).json(doc);
-        }
-      });
-    });

@@ -1,74 +1,73 @@
 var express = require('express');
 var router = express.Router();
 
-var CONTACTS_COLLECTION = "vin";
-/*  "/api/viner"
- *    GET: Hittar alla viner
- *    POST: skapar nytt vin
- */
+var Vin     = require('../models/vin');
+var Counter     = require('../models/counter');
+
 router.route('/')
 .get(function(req, res) {
-  req.db.collection(CONTACTS_COLLECTION).find({}).toArray(function(err, docs) {
+  Vin.find(function(err, viner) {
     if (err) {
       handleError(res, err.message, "Failed to get wines.");
     } else {
-      res.status(200).json(docs);
+      res.status(200).json(viner);
     }
   });
 
 })
 .post(function(req, res) {
   var newWine = req.body;
+  var vin = new Vin(newWine);
 
-  if (!req.body.namn) {
-    handleError(res, "Invalid user input", "Must provide a name.", 400);
-  }
-
-  req.db.collection(CONTACTS_COLLECTION).insertOne(newWine, function(err, doc) {
+  Counter.findByIdAndUpdate("vinid",   { $inc: { seq: 1 } }, function(err, counter) {
     if (err) {
-      handleError(res, err.message, "Failed to create new wine.");
+      handleError(res, err.message, "Failed to retreive counter");
     } else {
-      res.status(201).json(doc.ops[0]);
-    }
+      vin._id = counter.seq;
+      vin.save(function(err) {
+        if (err) {
+          res.status(500).json(err.message);
+        } else {
+          res.status(200).json(vin);
+        }
+      });
+  }
   });
-});
 
-/*  "/api/viner/:id"
- *    GET: hitta vin med id
- *    PUT: updatera vin med id
- *    DELETE: ta bort vin med id
- */
+
+});
 router.route('/:id')
 .get(function(req, res) {
-  req.db.collection(CONTACTS_COLLECTION).findOne({ _id: parseInt(req.params.id) }, function(err, doc) {
+  Vin.findById(req.params.id, function(err, vin) {
     if (err) {
       handleError(res, err.message, "Failed to get wine");
     } else {
-      res.status(200).json(doc);
+      res.status(200).json(vin);
     }
   });
-
 })
 .put(function(req, res) {
-  var updateDoc = req.body;
-  delete updateDoc._id;
-
-  req.db.collection(CONTACTS_COLLECTION).updateOne({_id: parseInt(req.params.id)}, updateDoc, function(err, doc) {
+  Vin.findByIdAndUpdate(req.params.id, req.body, {new:true}, function(err, vin) {
     if (err) {
       handleError(res, err.message, "Failed to update wine");
     } else {
-      updateDoc._id = req.params.id;
-      res.status(200).json(updateDoc);
-    }
+      res.status(200).json(vin);
+  }
   });
+
 })
 .delete(function(req, res) {
-  req.db.collection(CONTACTS_COLLECTION).deleteOne({_id: parseInt(req.params.id)}, function(err, result) {
+  Vin.findByIdAndRemove(req.params.id, function (err, vin) {
     if (err) {
-      handleError(res, err.message, "Failed to delete wine");
+      handleError(res, err.message, "Failed to find wine");
     } else {
-      res.status(200).json(req.params.id);
-    }
+      var response = {
+        message: "Wine successfully deleted",
+        id: vin._id,
+        namn: vin.namn
+      };
+      res.send(response);
+  }
   });
 });
 
