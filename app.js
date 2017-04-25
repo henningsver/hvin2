@@ -1,42 +1,22 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
+var mongoose   = require('mongoose');
+db = require('./models/db');
 
 const util = require('util')
 
 var app = express();
 app.set('port', (process.env.PORT || 5000));
 
-// Create a database variable outside of the database connection callback to reuse the connection pool in your app.
-var db;
 
-// Connect to the database before starting the application server.
-mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
-  if (err) {
-    console.log(err);
-    process.exit(1);
-  }
-
-  // Save database object from the callback for reuse.
-  db = database;
-  console.log("Database connection ready");
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
 
-});
 
-var mongoose   = require('mongoose');
-mongoose.Promise = require('bluebird');
-mongoose.connect(process.env.MONGODB_URI); // connect to our database
-var db2 = mongoose.connection;
-db2.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-app.use(function(req, res, next) {
-  req.db = db;
-  next();
-});
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -54,8 +34,6 @@ function handleError(res, reason, message, code) {
   res.status(code || 500).json({"error": message});
 }
 
-var viner3 = require('./routes/viner3.js');
-app.use('/api/viner3', viner3);
 
 var viner = require('./routes/viner.js');
 app.use('/api/viner', viner);
