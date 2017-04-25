@@ -1,0 +1,45 @@
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">List of wines</div>
+  <div class="panel-body">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Filter" ng-model="SearchWineCellar">
+  </div>
+  </div>
+
+  <!-- Table -->
+  <table class="table table-hover" ng-controller="VinKallarelistaCtrl as winelist">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>VinID</th>
+        <th>Antal</th>
+        <th>Lagring startad</th>
+        <th>Öppnad</th>
+        <th>Namn</th>
+        <th>Årgång</th>
+        <th>Land</th>
+        <th>Region</th>
+        <th>SubRegion</th>
+        <th>Appellation</th>
+        <th>Typ</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="wine in cellarwines | filter:SearchWineCellar" ng-click="isCollapsed = !isCollapsed">
+          <td>{{wine.ID}}</td>
+          <td>{{wine.VinID}}</td>
+          <td>{{wine.Antal}}</td>
+          <td>{{wine.LagringStartad}}</td>
+          <td>{{wine.Oppnad}}</td>
+          <td>{{wine.Namn}}</td>
+          <td>{{wine.Argang}}</td>
+          <td>{{wine.Land}}</td>
+          <td>{{wine.Region}}</td>
+          <td>{{wine.SubRegion}}</td>
+          <td>{{wine.Appellation}}</td>
+          <td>{{wine.Typ}}</td>
+        </tr>
+      </tbody>
+  </table>
+</div>

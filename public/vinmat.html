@@ -1,0 +1,45 @@
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">List of wines</div>
+  <div class="panel-body">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Filter" ng-model="SearchWineFood">
+  </div>
+  </div>
+
+  <!-- Table -->
+  <table class="table table-hover" ng-controller="VinMatlistaCtrl as winelist">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Datum</th>
+        <th>Bas</th>
+        <th>Rätt</th>
+        <th>Tillbehör</th>
+        <th>Sås</th>
+        <th>Extra</th>
+        <th>Vin</th>
+        <th>VinID</th>
+        <th>Mat</th>
+        <th>Vin</th>
+        <th>Kombi</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="winefood in winefoods | filter:SearchWineFood" ng-click="isCollapsed = !isCollapsed">
+          <td>{{winefood.ID}}</td>
+          <td>{{winefood.Datum}}</td>
+          <td>{{winefood.Bas}}</td>
+          <td>{{winefood.Ratt}}</td>
+          <td>{{winefood.Tillbehor}}</td>
+          <td>{{winefood.Sas}}</td>
+          <td>{{winefood.Extra}}</td>
+          <td>{{winefood.Vin}}</td>
+          <td>{{winefood.VinID}}</td>
+          <td>{{winefood.Matuplevelse}}</td>
+          <td>{{winefood.Vinupplevelse}}</td>
+          <td>{{winefood.Kombi}}</td>
+        </tr>
+      </tbody>
+  </table>
+</div>

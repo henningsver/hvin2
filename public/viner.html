@@ -1,0 +1,68 @@
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">List of wines</div>
+  <div class="panel-body">
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Filter" ng-model="SearchWine">
+  </div>
+  </div>
+
+  <!-- Table -->
+  <table class="table table-hover" ng-controller="VinlistaCtrl as winelist">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nr</th>
+        <th>Namn</th>
+        <th>Årgång</th>
+        <th>Land</th>
+        <th>Region</th>
+        <th>Sub-Region</th>
+        <th>Appellation</th>
+        <th>Pris</th>
+        <th>Betyg</th>
+        <th>Kvalitet</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat-start="wine in wines | filter:SearchWine" ng-click="isCollapsed = !isCollapsed">
+          <td>{{wine.ID}}</td>
+          <td>{{wine.Nr}}</td>
+          <td>{{wine.Namn}}</td>
+          <td>{{wine.Argang}}</td>
+          <td>{{wine.Land}}</td>
+          <td>{{wine.Region}}</td>
+          <td>{{wine.SubRegion}}</td>
+          <td>{{wine.Appellation}}</td>
+          <td>{{wine.Pris}}</td>
+          <td>{{wine.Betyg}}</td>
+          <td>{{wine.Kvalitet}}</td>
+        </tr>
+        <tr uib-collapse = "isCollapsed" ng-repeat-end="">
+          <td colspan="11">
+              <div class="container">
+                <div class="row">
+                  <div class="col-md-4">
+                    <dl class="dl-horizontal">
+                      <dt>Smaktyp</dt>
+                      <dd>{{wine.Smaktyp}}</dd>
+                      <dt>Smaktyp</dt>
+                      <dd>{{wine.SB_Smaktyp}}</dd>
+                      <dt>Lagring</dt>
+                      <dd>{{wine.Lagring}}</dd>
+                      <dt>Släpp</dt>
+                      <dd>{{wine.Slapp}}</dd>
+                    </dl>
+                  </div>
+                  <div class="col-md-4">
+                    <h4>Bedömning</h4>
+                    <p>{{wine.Bedomning}}</p>
+                  </div>
+                  <div class="col-md-4"><!--Column right--></div>
+                </div>
+              </div>
+          </td>
+        </tr>
+      </tbody>
+  </table>
+</div>

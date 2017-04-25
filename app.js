@@ -24,9 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', function (req, res) {
-  res.send('Hello you!');
-});
+
 
 // Generic error handler used by all endpoints.
 function handleError(res, reason, message, code) {
