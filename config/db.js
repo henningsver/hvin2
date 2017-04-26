@@ -32,5 +32,5 @@ process.on('SIGINT', function() {
 });
 
 // BRING IN YOUR SCHEMAS & MODELS // For example
-require('./../models/vin');
-require('./../models/counter');
+require('./../app/models/vin');
+require('./../app/models/counter');

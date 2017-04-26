@@ -2,7 +2,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 var mongoose   = require('mongoose');
-db = require('./models/db');
+db = require('./config/db');
 
 const util = require('util')
 
@@ -33,10 +33,10 @@ function handleError(res, reason, message, code) {
 }
 
 
-var viner = require('./routes/viner.js');
+var viner = require('./app/routes/viner.js');
 app.use('/api/viner', viner);
 
-var counters = require('./routes/counters.js');
+var counters = require('./app/routes/counters.js');
 app.use('/api/counters', counters);
 
 
